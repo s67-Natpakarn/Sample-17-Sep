@@ -1,0 +1,50 @@
+int[][] arr = new int[4][4];
+int attempts, point = 0;
+int[] first_click = new int[2];
+int[] second_click = new int[2];
+boolean game_locked = false;
+
+void setup() {
+  getIntToGrid(arr);
+}
+
+void getIntToGrid(int[][] arr) {
+  int[] RealNum = {1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8};
+  shuffleIntArray(RealNum);
+  int index = 0;
+
+  for (int i = 0; i < arr.length; i++) {
+    for (int j = 0; j < arr[i].length; j++) {
+      arr[i][j] = RealNum[index];
+      index++;
+    }
+  }
+}
+
+void shuffleIntArray(int[] array) {
+  for (int i = array.length - 1; i > 0; i--) {
+    int j = (int) random(i + 1);
+    int temp = array[i];
+    array[i] = array[j];
+    array[j] = temp;
+  }
+}
+
+void on_button_click(int row, int col) {
+  if (game_locked) {
+    return;
+  }
+  if (first_click == null) {
+    first_click[0] = row;
+    first_click[1] = col;
+  }else{
+    second_click[0] = row;
+    second_click[1] = col;
+    game_locked = true;
+    // Delay timer after clicked
+  }
+}
+
+void check_match() {
+  // Logic to check if first_click and second_click are a match
+}
