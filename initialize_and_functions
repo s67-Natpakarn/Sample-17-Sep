@@ -1,19 +1,93 @@
 int[][] arr = new int[4][4];
-int attempts, point = 0;
-int[] first_click = new int[2];  
-int[] second_click = new int[2]; 
-boolean game_locked = false;
+int attempts = 0, point = 0;
+int[] first_click = null;  
+int[] second_click = null; 
+boolean[][] revealed = new boolean[4][4];
+int gridSize;
+int revealTime = 60;
+int revealCounter = 0;
 
 void setup() {
   size(600, 600);
-  background(255);
+  gridSize = width / 4;
   strokeWeight(2);
   getIntToGrid(arr);
-  int gridSize = width / 4;  
+  drawGrid();
+}
+
+void draw() {
+  drawGrid();
+
+  if (revealCounter > 0) {
+    revealCounter--;  // Decrease counter
+
+    if (revealCounter == 0) {
+      check_match();  // Check match when the countdown finishes
+    }
+  }
+}
+
+void drawGrid() {
+  background(255);
   for (int i = 0; i < 4; i++) {
     for (int j = 0; j < 4; j++) {
       rect(i * gridSize, j * gridSize, gridSize, gridSize);
+
+      if (revealed[i][j] || (first_click != null && first_click[0] == i && first_click[1] == j) || (second_click != null && second_click[0] == i && second_click[1] == j)) {
+        fill(0);
+        textAlign(CENTER, CENTER);
+        textSize(32);
+        text(arr[i][j], i * gridSize + gridSize / 2, j * gridSize + gridSize / 2);
+        fill(255);
+      }
     }
+  }
+}
+
+void mousePressed() {
+  if (revealCounter > 0) {
+    return;
+  }
+
+  int row = mouseX / gridSize;
+  int col = mouseY / gridSize;
+
+  if (revealed[row][col]) {
+    return;
+  }
+  if (first_click == null) {
+    first_click = new int[] {row, col};
+    revealed[row][col] = true;
+  }else{
+    second_click = new int[] {row, col};
+    revealed[row][col] = true;
+    revealCounter = revealTime;
+  }
+}
+
+void check_match() {
+  attempts++;
+  
+  int row1 = first_click[0];
+  int col1 = first_click[1];
+  int row2 = second_click[0];
+  int col2 = second_click[1];
+
+  if (arr[row1][col1] == arr[row2][col2]) {
+    points++;
+    println("Match! Points: " + points + ", Attempts: " + attempts);
+  } else {
+    revealed[row1][col1] = false;
+    revealed[row2][col2] = false;
+    println("No match. Attempts: " + attempts);
+  }
+
+  first_click = null;
+  second_click = null;
+
+  if (points == 8) {
+    println("You win! Total attempts: " + attempts);
+    noLoop();  // Stop the game
   }
 }
 
@@ -37,42 +111,4 @@ void shuffleIntArray(int[] array) {
     array[i] = array[j];
     array[j] = temp;
   }
-}
-
-void on_button_click(int row, int col) {
-  if (game_locked) {
-    return;
-  }
-  if (first_click == null) {
-    first_click[0] = row;
-    first_click[1] = col;
-  }else{
-    second_click[0] = row;
-    second_click[1] = col;
-    game_locked = true;
-    // Delay timer after clicked
-  }
-}
-
-void check_match(int attemps, int point) {
-  int row1 = first_click[0];
-  int col1 = first_click[1];
-  int row2 = second_click[0];
-  int col2 = second_click[1];
-  
-  attemps++;
-// show attemps
-  if (arr[row1][col1] == arr[row2][col2]){
-    point++;
-    if (point == 8){
-      // display you win
-      return;
-    }
-    // display match and score
-  }else{
-    // make button 1 and 2 to be able to play again and display no match
-  }
-  first_click = null;
-  second_click = null;
-  game_locked = false;
 }
